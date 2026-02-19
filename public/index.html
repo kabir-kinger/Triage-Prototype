@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Healthcare Triage Prototype</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            width: 420px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f9f9f9;
+            font-size: 14px;
+        }
+
+        .emergency { border-left: 5px solid #dc3545; }
+        .same-day { border-left: 5px solid #ffc107; }
+        .routine { border-left: 5px solid #28a745; }
+
+        .label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Healthcare Appointment Triage (MVP)</h2>
+
+    <form id="triageForm">
+        <input type="number" id="age" placeholder="Age" required />
+        <textarea id="symptoms" placeholder="Describe symptoms" required></textarea>
+        <input type="number" id="pain_level" placeholder="Pain Level (1-10)" required />
+        <input type="number" id="duration_days" placeholder="Duration (days)" required />
+        <button type="submit">Evaluate</button>
+    </form>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.getElementById("triageForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "Evaluating...";
+        resultDiv.className = "result";
+
+        const data = {
+            age: Number(document.getElementById("age").value),
+            symptoms: document.getElementById("symptoms").value,
+            pain_level: Number(document.getElementById("pain_level").value),
+            duration_days: Number(document.getElementById("duration_days").value)
+        };
+
+        const response = await fetch("/triage-evaluation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        let urgencyClass = "routine";
+        if (result.urgency === "Emergency") urgencyClass = "emergency";
+        if (result.urgency === "Same-Day") urgencyClass = "same-day";
+
+        resultDiv.className = `result ${urgencyClass}`;
+        resultDiv.innerHTML = `
+            <div><span class="label">Urgency:</span> ${result.urgency || result.error}</div>
+            <div><span class="label">Action:</span> ${result.recommended_action || ""}</div>
+            <div><span class="label">Reasoning:</span> ${result.reasoning || ""}</div>
+            <div><span class="label">Note:</span> ${result.disclaimer || ""}</div>
+        `;
+    });
+
+});
+</script>
+
+</body>
+</html>
