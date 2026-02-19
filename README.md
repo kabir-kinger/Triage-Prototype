@@ -44,17 +44,29 @@ The current version includes:
 
 ---
 
-## Decision Engine Logic (Example)
+## Decision Engine Logic Hierarchy
+The triage engine follows a strict rule precedence to ensure deterministic and explainable outputs:
 
-Example classification logic:
+1. Emergency Rules Evaluated First
+-Critical symptom keywords (e.g., chest pain, severe bleeding)
+-High pain threshold (≥ 8)
+-Sudden severe pain (duration = 0 with pain ≥ 9)
 
-- Severe chest pain + pain level > 7 → Emergency
-- Fever lasting more than 3 days → Same-Day
-- Mild symptoms + low pain level → Routine
+2. Same-Day Rules Evaluated Second
+-Fever lasting more than 3 days
+-Moderate pain levels (5–7)
 
-The goal is to simulate production-ready decision logic while keeping the MVP lightweight.
+3. Routine Fallback
+-Mild symptoms
+-Pain levels between 1–4
+-Short symptom duration
 
----
+This structured evaluation ensures:
+-Deterministic classification
+-Clear explainability
+-Simplified QA coverage
+-Reduced ambiguity in urgency determination
+
 
 ## API Contract (Mock)
 
