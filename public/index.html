@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
             duration_days: Number(document.getElementById("duration_days").value)
         };
 
-        const response = await fetch("/triage-evaluation", {
+        const response = await fetch("/api/triage-evaluation", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
